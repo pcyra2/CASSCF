@@ -14,7 +14,19 @@
 
 ## Running
 
-Execute the CASSCF.py script from the work-directory with the .xyz file. Make sure to change the system_info dictionary at the top of the script. Importantly, nFrozen, charge, and spin.
+Run in a directory with the molecule.xyz in. 
+Preferably if it also has the MP2_natural_orbitals.json this will read in the MP2 natural orbitals from a previous calculation.
+
+To run: 
+CASSCF -c=NET_CHARGE -s=SPIN -ci=MAX_CASCI[1] -scf=MAX_SCF[2] -m=MAX_MEMORY -size=MAX_HAMILTONIAN_GENERATED[3] 
+
+There are also extra flags to toggle extra functionality:
+-CCSD (performs CCSD)
+-noRDM (Doesnt generate the RDM files associated with CCSD)
+-nevpt (performs NEVPT2 on the CASCI calculations)
+
+
+
 
 ## Orca compatability
 
