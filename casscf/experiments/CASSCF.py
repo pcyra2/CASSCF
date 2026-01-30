@@ -43,7 +43,7 @@ def main():
         if "=" in arg:
             if "-c" in arg:
                 system_info["charge"] = int(arg.split("=")[1])
-            elif "-s" in arg:
+            elif "-s=" in arg:
                 system_info["spin"] = int(arg.split("=")[1])
             elif "-nf" in arg:
                 system_info["nFrozen"] = int(arg.split("=")[1])
