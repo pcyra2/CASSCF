@@ -41,21 +41,21 @@ def main():
     nfrozen_override = False
     for i, arg in enumerate(sys.argv):
         if "=" in arg:
-            if "-c" in arg:
+            if "-c=" in arg:
                 system_info["charge"] = int(arg.split("=")[1])
             elif "-s=" in arg:
                 system_info["spin"] = int(arg.split("=")[1])
-            elif "-nf" in arg:
+            elif "-nf=" in arg:
                 system_info["nFrozen"] = int(arg.split("=")[1])
                 nfrozen_override = True
                 nfrozen = int(arg.split("=")[1])
-            elif "-CI" in arg or "-CASCI" in arg:
+            elif "-CI=" in arg or "-CASCI" in arg:
                 system_info["max_CASCI"] = int(arg.split("=")[1])
-            elif "-SCF" in arg or "-CASSCF" in arg:
+            elif "-SCF=" in arg or "-CASSCF" in arg:
                 system_info["max_CASSCF"] = int(arg.split("=")[1])
-            elif "-m" in arg:
+            elif "-m=" in arg:
                 system_info["max_memory"] = int(arg.split("=")[1])
-            elif "-size" in arg:
+            elif "-size=" in arg:
                 system_info["max_active_space"] = int(arg.split("=")[1])
             else:
                 raise Exception("Unknown argument")
