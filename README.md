@@ -20,6 +20,10 @@ Preferably if it also has the MP2_natural_orbitals.json this will read in the MP
 To run: 
 CASSCF -c=NET_CHARGE -s=SPIN -ci=MAX_CASCI[1] -scf=MAX_SCF[2] -m=MAX_MEMORY -size=MAX_HAMILTONIAN_GENERATED[3] 
 
+[1] - The maximum size of CASCI that is actually executed (not the maximum hamiltonian size)
+[2] - The maximum size of CASSCF that is actually executed 
+[3] - The maximum hamiltonian size to be generated
+
 There are also extra flags to toggle extra functionality:
 -CCSD (performs CCSD)
 -noRDM (Doesnt generate the RDM files associated with CCSD)
