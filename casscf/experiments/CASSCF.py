@@ -23,7 +23,8 @@ system_info = dict(filename=glob.glob("*.xyz")[0],
                    max_active_space = 4,
                    ccsd = False,
                    noRDM = False,
-                   nevpt2 = False)
+                   nevpt2 = False,
+                   nelec_active = None)
 
 def main():
     if os.path.isfile("./summary.json"):
@@ -57,6 +58,9 @@ def main():
                 system_info["max_memory"] = int(arg.split("=")[1])
             elif "-size=" in arg:
                 system_info["max_active_space"] = int(arg.split("=")[1])
+
+            elif "-nelec=" in arg:
+                system_info["nelec_active"] = int(arg.split("=")[1])
             else:
                 raise Exception("Unknown argument")
         elif "-CCSD" in arg:
@@ -66,11 +70,18 @@ def main():
         elif "-nevpt" in arg:
             system_info["nevpt2"] = True
         else:
-            if i > 1:
-                orbs.append(int(arg))
+            try:
+                orb = int(i)
+                if orb > 1:
+                    orbs.append(int(arg))
+            except:
+                pass
     if len(orbs) > 0:
+        assert system_info["nelec_active"] is not None
         print("Using orbitals from command line: ", orbs)
     else:
+        
+
         print("No orbitals specified, using the systematic approach.")
     
     molecule = pyscfTools.genMol(molpath, system_info["charge"], 
@@ -151,7 +162,7 @@ def main():
         io.jsonDump(summary, "./summary.json")
 
         
-    if len(orbs) == 0:
+    if len(orbs) == 0 and system_info["max_active_space"] != 0:
         print("No orbitals specified, running systematic CASSCF/CASCI calculations.")
         for active_space in range(2, system_info["max_active_space"]+2, 2):
             print(f"Running active space: {active_space}")
@@ -213,6 +224,59 @@ def main():
                 if nevpt is not None:
                     summary["CASSCF"][active_space]["nevpt2"] = nevpt
                 io.jsonDump(summary, "./summary.json")
+        
+    else:
+        active_space = f"{system_info["nelec_active"]}-{len(orbs)}"
+        mo_list = orbs
+        if os.path.isfile(f"hamiltonians/{active_space}_CASCI.json") is False:
+                mf.mol.output = f"outputs/CASCI_{active_space}.out"
+                mf.mol.build()
+                ci_s = time.perf_counter()
+                CASCI, CIorb, CIocc, nevpt = pyscfTools.CASCI(mf, nActiveElectrons=system_info["nelec_active"], 
+                                                       nActiveOrbitals=len(orbs), natocc=natocc, 
+                                                       natorb=natorb, cas_list=orbs, 
+                                                       max_run=system_info["max_CASCI"], nevpt2 = system_info["nevpt2"])
+                ci_e = time.perf_counter()
+                try:
+                    print("CASCI Energy: ", CASCI.e_tot)
+                except:
+                    if active_space <= system_info["max_CASCI"]:
+                        print("CASCI did not converge.")
+
+                result = Hamiltonian.CAS_to_Hamiltonian(CASCI, mo_list, CIorb, len(mo_list), system_info["nelec_active"])
+                io.jsonDump(result, f"hamiltonians/{active_space}_CASCI.json")
+                
+                summary["CASCI"][active_space] = dict(e_tot = CASCI.e_tot, 
+                                                      e_cas = CASCI.e_cas, 
+                                                      time= ci_e - ci_s)
+                if nevpt is not None:
+                    summary["CASCI"][active_space]["nevpt2"] = nevpt.e_corr
+                io.jsonDump(summary, "./summary.json")
+
+        if os.path.isfile(f"hamiltonians/{active_space}_CASSCF.json") is False and active_space <= system_info["max_CASSCF"]:
+            mf.mol.output = f"outputs/CASSCF_{active_space}.out"
+            mf.mol.build()
+            cs_s = time.perf_counter()
+            CASSCF, CASorb, natocc, nevpt = pyscfTools.CASSCF(mf, nActiveElectrons=system_info["nelec_active"], 
+                                                        nActiveOrbitals=len(orbs), natocc=natocc, 
+                                                        natorb=natorb, NFrozen=system_info["nFrozen"], 
+                                                        max_run = system_info["max_CASSCF"],
+                                                        nevpt2 = system_info["nevpt2"])
+            cs_e = time.perf_counter()
+            try:
+                print("CASSCF Energy: ", CASSCF.e_tot)
+            except:
+                if active_space <= system_info["max_CASSCF"]:
+                    print("CASSCF did not converge.")
+            result = Hamiltonian.CAS_to_Hamiltonian(CASSCF, mo_list, CASorb, len(mo_list), system_info["nelec_active"])
+            io.jsonDump(result, f"hamiltonians/{active_space}_CASSCF.json")
+
+            summary["CASSCF"][active_space] = dict(e_tot = CASSCF.e_tot, 
+                                                    e_cas = CASSCF.e_cas, 
+                                                    time = cs_e - cs_s)
+            if nevpt is not None:
+                summary["CASSCF"][active_space]["nevpt2"] = nevpt
+            io.jsonDump(summary, "./summary.json")
 
 
 if __name__ == "__main__":
