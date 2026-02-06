@@ -18,9 +18,9 @@ system_info = dict(filename=glob.glob("*.xyz")[0],
                    basis="sto3g",
                    nFrozen=None, # Number of frozen spatial orbitals
                    max_memory=15000,
-                   max_CASCI = 6,
-                   max_CASSCF = 2,
-                   max_active_space = 4,
+                   max_CASCI = 10,
+                   max_CASSCF = 8,
+                   max_active_space = 40,
                    ccsd = False,
                    noRDM = False,
                    nevpt2 = False,
@@ -225,7 +225,7 @@ def main():
                     summary["CASSCF"][active_space]["nevpt2"] = nevpt
                 io.jsonDump(summary, "./summary.json")
         
-    else:
+    elif len(orbs)>1:
         active_space = f"{system_info["nelec_active"]}-{len(orbs)}"
         mo_list = orbs
         if os.path.isfile(f"hamiltonians/{active_space}_CASCI.json") is False:
@@ -248,12 +248,13 @@ def main():
                 
                 summary["CASCI"][active_space] = dict(e_tot = CASCI.e_tot, 
                                                       e_cas = CASCI.e_cas, 
-                                                      time= ci_e - ci_s)
+                                                      time= ci_e - ci_s,
+                                                      orbitals = mo_list)
                 if nevpt is not None:
                     summary["CASCI"][active_space]["nevpt2"] = nevpt.e_corr
                 io.jsonDump(summary, "./summary.json")
 
-        if os.path.isfile(f"hamiltonians/{active_space}_CASSCF.json") is False and active_space <= system_info["max_CASSCF"]:
+        if os.path.isfile(f"hamiltonians/{active_space}_CASSCF.json") is False and len(mo_list) <= system_info["max_CASSCF"]:
             mf.mol.output = f"outputs/CASSCF_{active_space}.out"
             mf.mol.build()
             cs_s = time.perf_counter()
@@ -273,7 +274,8 @@ def main():
 
             summary["CASSCF"][active_space] = dict(e_tot = CASSCF.e_tot, 
                                                     e_cas = CASSCF.e_cas, 
-                                                    time = cs_e - cs_s)
+                                                    time = cs_e - cs_s,
+                                                    orbitals = mo_list)
             if nevpt is not None:
                 summary["CASSCF"][active_space]["nevpt2"] = nevpt
             io.jsonDump(summary, "./summary.json")

@@ -9,4 +9,7 @@ setup(
              "CASSCF = casscf.experiments.CASSCF:main",
         ],
     },
+    install_requires=["pyscf", "qiskit", "qiskit-nature", 
+                      "openfermion", "ase", "h5py"
+                        ]
 )
