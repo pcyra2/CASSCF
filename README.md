@@ -39,6 +39,7 @@ There are also extra flags to toggle extra functionality:
 -CCSD (performs CCSD)
 -noRDM (Doesnt generate the RDM files associated with CCSD)
 -nevpt (performs NEVPT2 on the CASCI calculations)
+-nelec=NUMBER_ACTIVE_ELECTRONS (Only used in the chemically informed/manually selected active space environment)
 
 For Chemically informed active space calculations, Run the code in the following procedure:
 
