@@ -64,6 +64,9 @@ def main():
 
             elif "-nelec=" in arg:
                 system_info["nelec_active"] = int(arg.split("=")[1])
+            elif "-asf=" in arg:
+                system_info["ASF"] = True
+                system_info["ASF_Size"] = int(arg.split("=")[1])
             else:
                 raise Exception("Unknown argument")
         elif "-CCSD" in arg:
@@ -72,9 +75,7 @@ def main():
             system_info["noRDM"] = True
         elif "-nevpt" in arg:
             system_info["nevpt2"] = True
-        elif "-asf" in arg:
-            system_info["ASF"] = True
-            system_info["ASF_Size"] = int(arg.split("=")[1])
+        
         else:
             try:
                 orb = int(i)
