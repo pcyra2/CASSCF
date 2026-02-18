@@ -2,3 +2,6 @@
 /casscf.egg-info
 /results
 *.pyc
+
+
+__pycache__/
