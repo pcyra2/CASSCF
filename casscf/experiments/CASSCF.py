@@ -258,7 +258,7 @@ def main():
                 summary["CASCI"][active_space] = dict(e_tot = CASCI.e_tot, 
                                                       e_cas = CASCI.e_cas, 
                                                       time= ci_e - ci_s,
-                                                      orbitals = mo_list,
+                                                      orbitals = ActSpace.mo_list,
                                                       coeff = ActSpace.mo_list)
                 if nevpt is not None:
                     summary["CASCI"][active_space]["nevpt2"] = nevpt.e_corr
