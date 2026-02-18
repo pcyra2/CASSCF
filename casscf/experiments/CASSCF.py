@@ -215,7 +215,7 @@ def main():
                                                            nActiveOrbitals=active_space, natocc=natocc, 
                                                            natorb=natorb, NFrozen=system_info["nFrozen"], 
                                                            max_run = system_info["max_CASSCF"],
-                                                           nevpt2 = system_info["nevpt2"])
+                                                           )
                 cs_e = time.perf_counter()
                 try:
                     print("CASSCF Energy: ", CASSCF.e_tot)
