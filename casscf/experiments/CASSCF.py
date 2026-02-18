@@ -3,6 +3,7 @@
 import casscf.code.io as io
 import casscf.code.Hamiltonian as Hamiltonian
 import casscf.code.pyscf_tools as pyscfTools
+from asf.wrapper import sized_space_from_scf
 import os
 import glob
 from pprint import pprint
@@ -24,7 +25,9 @@ system_info = dict(filename=glob.glob("*.xyz")[0],
                    ccsd = False,
                    noRDM = False,
                    nevpt2 = False,
-                   nelec_active = None)
+                   nelec_active = None,
+                   ASF = False,
+                   ASF_Size = 0)
 
 def main():
     if os.path.isfile("./summary.json"):
@@ -69,6 +72,9 @@ def main():
             system_info["noRDM"] = True
         elif "-nevpt" in arg:
             system_info["nevpt2"] = True
+        elif "-asf" in arg:
+            system_info["ASF"] = True
+            system_info["ASF_Size"] = int(arg.split("=")[1])
         else:
             try:
                 orb = int(i)
@@ -162,7 +168,7 @@ def main():
         io.jsonDump(summary, "./summary.json")
 
         
-    if len(orbs) == 0 and system_info["max_active_space"] != 0:
+    if len(orbs) == 0 and system_info["max_active_space"] != 0 and system_info["ASF"] == False: ## Brute force CAS method
         print("No orbitals specified, running systematic CASSCF/CASCI calculations.")
         for active_space in range(2, system_info["max_active_space"]+2, 2):
             print(f"Running active space: {active_space}")
@@ -224,9 +230,43 @@ def main():
                 if nevpt is not None:
                     summary["CASSCF"][active_space]["nevpt2"] = nevpt
                 io.jsonDump(summary, "./summary.json")
-        
-    elif len(orbs)>1:
-        active_space = f"{system_info["nelec_active"]}-{len(orbs)}"
+
+    elif len(orbs) == 0 and system_info["max_active_space"] != 0 and system_info["ASF"] == True and system_info["ASF_Size"] > 1: ### ASF Method
+        print(f"INFO: Running ASF approach to select active space. Generating active space of size {system_info['ASF_Size']} using ASF.")
+        ActSpace = sized_space_from_scf(mf, system_info["ASF_Size"])
+        active_space = f"{system_info['ASF_Size']}_ASF"
+        if os.path.isfile(f"hamiltonians/{active_space}_CASCI.json") is False:
+                mf.mol.output = f"outputs/CASCI_{active_space}.out"
+                mf.mol.build()
+                ci_s = time.perf_counter()
+                CASCI, CIorb, CIocc, nevpt = pyscfTools.CASCI(mf, nActiveElectrons=ActSpace.nel, 
+                                                       nActiveOrbitals= ActSpace.norb, natocc=[], 
+                                                       natorb=ActSpace.mo_coeff, cas_list=ActSpace.mo_list, 
+                                                       max_run=system_info["max_CASCI"], nevpt2 = system_info["nevpt2"])
+                ci_e = time.perf_counter()
+                try:
+                    print("CASCI Energy: ", CASCI.e_tot)
+                except:
+                    if active_space <= system_info["max_CASCI"]:
+                        print("CASCI did not converge.")
+
+                result = Hamiltonian.CAS_to_Hamiltonian(CASCI, ActSpace.mo_list, CIorb, ActSpace.norb, ActSpace.nel)
+                result["coeff"] = ActSpace.mo_list
+                io.jsonDump(result, f"hamiltonians/{active_space}_CASCI.json")
+
+                summary["CASCI"][active_space] = dict(e_tot = CASCI.e_tot, 
+                                                      e_cas = CASCI.e_cas, 
+                                                      time= ci_e - ci_s,
+                                                      orbitals = mo_list,
+                                                      coeff = ActSpace.mo_list)
+                if nevpt is not None:
+                    summary["CASCI"][active_space]["nevpt2"] = nevpt.e_corr
+                io.jsonDump(summary, "./summary.json")
+
+
+
+    elif len(orbs) > 1: ### Manual selection method
+        active_space = f"{system_info['nelec_active']}-{len(orbs)}"
         mo_list = orbs
         if os.path.isfile(f"hamiltonians/{active_space}_CASCI.json") is False:
                 mf.mol.output = f"outputs/CASCI_{active_space}.out"

@@ -4,6 +4,7 @@ from pyscf import cc, mcscf, mp, mrpt
 from pyscf.mp.dfmp2_native import DFRMP2
 from pyscf.mp.dfump2_native import DFUMP2
 import pyscf.tools.cubegen as cubegen
+from pyscf.mcscf import avas
 
 
 import os
@@ -109,7 +110,6 @@ def FCI(HF: pyscf.scf.uhf.UHF, UHF: bool, )-> float:
     rdm2 = False
     return Energy, rdm1, rdm2
 
-
 def CCSD(MF, FrozenCore:bool, Tripples:bool):
     """
     Perform a coupled cluster singles and doubles (CCSD) calculation using PySCF.
@@ -207,7 +207,7 @@ def make_natural_orbitals(mf, FrozenCore: bool, DensityFit: bool):
     return mp2, natocc, natorb
 
 def CASSCF(mf, nActiveElectrons:int, nActiveOrbitals:int, natocc:numpy.array = None, natorb:numpy.array = None, 
-           NFrozen:int = 0, cas_list = None, max_run :int = 16,nevpt2:bool=False):
+           NFrozen:int = 0, cas_list = None, max_run :int = 16,):
     nevpt = None
     if natocc is None or natorb is None:
         if NFrozen > 0:
@@ -255,8 +255,6 @@ def CASCI(mf, nActiveElectrons:int, nActiveOrbitals:int, natocc:numpy.array = No
             nevpt.kernel()
             # pprint(vars(nevpt))
     return cas, natorb, natocc, nevpt
-
-
 
 def genCube(coeffs:numpy.array, Molecule: pyscf.M,  path:str, UHF:bool = False, basis:str = "molecular") -> None: # pragma: no cover
     """Generates cube files

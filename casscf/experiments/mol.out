@@ -1,0 +1,347 @@
+#INFO: **** input file is /home/ross/GitRepos/CASSCF/casscf/experiments/test_avas.py ****
+#!/usr/bin/env python
+
+import casscf.code.io as io
+import casscf.code.Hamiltonian as Hamiltonian
+import casscf.code.pyscf_tools as pyscfTools
+import os
+import glob
+from pprint import pprint
+import numpy
+import pyscf
+import sys
+import time
+
+from asf.wrapper import find_from_mol, sized_space_from_mol , sized_space_from_scf
+
+
+system_info = dict(
+                   charge=0,
+                   spin=0,
+                   basis="sto3g",
+                   nFrozen=None, # Number of frozen spatial orbitals
+                   max_memory=15000,
+                   max_CASCI = 10,
+                   max_CASSCF = 8,
+                   max_active_space = 40,
+                   ccsd = False,
+                   noRDM = False,
+                   nevpt2 = False,
+                   nelec_active = None)
+
+def main():
+    mol = pyscfTools.genMol("O 0 0 0; H 0 0 1; H 0 1.2 0", basis=system_info["basis"], charge=system_info["charge"], spin=system_info["spin"], symmetry=False, mem=system_info["max_memory"])
+    nelec = mol.nelec
+    mf = pyscfTools.RHF(mol)
+    mp2, natocc , natorb = pyscfTools.make_natural_orbitals(mf, True, False)
+    active_space = 8
+    mo_list = []
+    
+    pprint(mol.ao_labels())
+    active_space = sized_space_from_scf(mf, 4)
+    pprint(vars(active_space))
+    CASCI, CIorb, CIocc, nvept = pyscfTools.CASCI(mf, active_space.nel, active_space.norb, natocc=[], natorb=active_space.mo_coeff, cas_list=active_space.mo_list, nevpt2=system_info["nevpt2"])
+
+    pprint(vars(CASCI))
+    
+if __name__ == "__main__":
+    main()#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Linux', node='Quantum', release='6.17.0-14-generic', version='#14~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Thu Jan 15 15:52:10 UTC 2', machine='x86_64')  Threads 24
+Python 3.11.0 | packaged by conda-forge | (main, Jan 14 2023, 12:27:40) [GCC 11.3.0]
+numpy 2.4.2  scipy 1.17.0  h5py 3.15.1
+Date: Tue Feb 17 11:20:31 2026
+PySCF version 2.12.1
+PySCF path  /home/ross/Software/miniconda/envs/AUTOCAS/lib/python3.11/site-packages/pyscf
+
+[ENV] PYSCF_TMPDIR /big/scratch/pyscf
+[CONFIG] conf_file None
+[INPUT] verbose = 6
+[INPUT] max_memory = 15000 
+[INPUT] num. atoms = 3
+[INPUT] num. electrons = 10
+[INPUT] charge = 0
+[INPUT] spin (= nelec alpha-beta = 2S) = 0
+[INPUT] symmetry False subgroup None
+[INPUT] Mole.unit = Ang
+[INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
+[INPUT]  1 O      0.000000000000   0.000000000000   0.000000000000 AA    0.000000000000   0.000000000000   0.000000000000 Bohr   0.0
+[INPUT]  2 H      0.000000000000   0.000000000000   1.000000000000 AA    0.000000000000   0.000000000000   1.889726124565 Bohr   0.0
+[INPUT]  3 H      0.000000000000   1.200000000000   0.000000000000 AA    0.000000000000   2.267671349478   0.000000000000 Bohr   0.0
+[INPUT] ---------------- BASIS SET ---------------- 
+[INPUT] l, kappa, [nprim/nctr], expnt,             c_1 c_2 ...
+[INPUT] H
+[INPUT] 0    0    [3    /1   ]  3.42525091        0.15432897
+                                0.62391373        0.53532814
+                                0.1688554         0.44463454
+[INPUT] O
+[INPUT] 0    0    [3    /1   ]  130.70932         0.15432897
+                                23.808861         0.53532814
+                                6.4436083         0.44463454
+[INPUT] 0    0    [3    /1   ]  5.0331513         -0.09996723
+                                1.1695961         0.39951283
+                                0.380389          0.70011547
+[INPUT] 1    0    [3    /1   ]  5.0331513         0.15591627
+                                1.1695961         0.60768372
+                                0.380389          0.39195739
+
+nuclear repulsion = 8.10003675524894
+number of shells = 5
+number of NR pGTOs = 21
+number of NR cGTOs = 7
+basis = sto3g
+ecp = {}
+CPU time:         4.61
+
+
+******** <class 'pyscf.scf.hf.RHF'> ********
+method = RHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /big/scratch/pyscf/tmpwutjukkb
+max_memory 15000 MB (current use 291 MB)
+cond(S) = 4.593197174156775
+Set gradient conv threshold to 3.16228e-05
+Initial guess from minao.
+Nelec from initial guess = 9.862765996871872
+E1 = -118.55476688519198  E_coul = 35.89616868189365
+init E= -74.5585614480494
+    CPU time for initialize scf      2.21 sec, wall time      0.13 sec
+  HOMO = -0.361520687211391  LUMO = 0.239063387177822
+  mo_energy =
+[-20.5508223   -1.48024069  -0.58586745  -0.52006473  -0.36152069
+   0.23906339   0.44813276]
+E1 = -121.86469639527185  E_coul = 38.91579973564962
+cycle= 1 E= -74.8488599043733  delta_E= -0.29  |g|= 0.434  |ddm|= 1.67
+    CPU time for cycle= 1      0.43 sec, wall time      0.02 sec
+diis-norm(errvec)=0.613254
+diis-c [-0.37608086  1.        ]
+  HOMO = -0.219107035430063  LUMO = 0.479189995446519
+  mo_energy =
+[-19.93728413  -1.10581298  -0.45608395  -0.34456867  -0.21910704
+   0.47919      0.69204726]
+E1 = -119.9173339469322  E_coul = 36.892946939419915
+cycle= 2 E= -74.9243502522633  delta_E= -0.0755  |g|= 0.102  |ddm|= 0.771
+    CPU time for cycle= 2      0.97 sec, wall time      0.05 sec
+diis-norm(errvec)=0.144377
+diis-c [-0.00218898  0.18258868  0.81741132]
+  HOMO = -0.395122023991073  LUMO = 0.439581173814111
+  mo_energy =
+[-20.27350192  -1.22598807  -0.53365382  -0.4557547   -0.39512202
+   0.43958117   0.62383947]
+E1 = -120.27085927730015  E_coul = 37.24296139974418
+cycle= 3 E= -74.927861122307  delta_E= -0.00351  |g|= 0.00883  |ddm|= 0.122
+    CPU time for cycle= 3      0.89 sec, wall time      0.04 sec
+diis-norm(errvec)=0.0124883
+diis-c [-1.23124173e-05 -6.07692851e-02 -2.82942540e-01  1.34371183e+00]
+  HOMO = -0.396856867789954  LUMO = 0.443552006297178
+  mo_energy =
+[-20.27607217  -1.22848597  -0.53437065  -0.45760738  -0.39685687
+   0.44355201   0.62468112]
+E1 = -120.27336226713281  E_coul = 37.245429018925456
+cycle= 4 E= -74.9278964929584  delta_E= -3.54e-05  |g|= 0.00106  |ddm|= 0.0142
+    CPU time for cycle= 4      0.94 sec, wall time      0.04 sec
+diis-norm(errvec)=0.00149416
+diis-c [-1.60383936e-06  1.88670121e-02  8.77836282e-02 -4.24710755e-01
+  1.31806012e+00]
+  HOMO = -0.396574709394671  LUMO = 0.442850238951692
+  mo_energy =
+[-20.27529179  -1.22809866  -0.53359981  -0.45700288  -0.39657471
+   0.44285024   0.62420312]
+E1 = -120.27389863831155  E_coul = 37.24596439606036
+cycle= 5 E= -74.9278974870022  delta_E= -9.94e-07  |g|= 0.000344  |ddm|= 0.0028
+    CPU time for cycle= 5      0.28 sec, wall time      0.01 sec
+diis-norm(errvec)=0.000486349
+diis-c [-8.84849226e-09 -5.63147500e-04 -1.50160667e-03  3.96315868e-03
+ -4.57265192e-01  1.45536679e+00]
+  HOMO = -0.396584764110891  LUMO = 0.443041317633389
+  mo_energy =
+[-20.27541343  -1.22813563  -0.53370992  -0.45722668  -0.39658476
+   0.44304132   0.62435499]
+E1 = -120.27379829066761  E_coul = 37.24586393279636
+cycle= 6 E= -74.9278976026223  delta_E= -1.16e-07  |g|= 2.35e-05  |ddm|= 0.00127
+    CPU time for cycle= 6      0.11 sec, wall time      0.00 sec
+diis-norm(errvec)=3.32759e-05
+diis-c [-1.30791769e-10 -8.76340127e-05 -8.63400609e-04  5.80151802e-03
+  1.88027264e-01 -6.50137584e-01  1.45725984e+00]
+  HOMO = -0.396579044904921  LUMO = 0.443028059045754
+  mo_energy =
+[-20.27540346  -1.22812893  -0.53369789  -0.45722787  -0.39657904
+   0.44302806   0.62436628]
+E1 = -120.2738037639012  E_coul = 37.24586940561635
+cycle= 7 E= -74.9278976030359  delta_E= -4.14e-10  |g|= 1.73e-06  |ddm|= 6.55e-05
+    CPU time for cycle= 7      0.69 sec, wall time      0.03 sec
+  HOMO = -0.396578450489282  LUMO = 0.443027141620523
+  mo_energy =
+[-20.27540202  -1.22812826  -0.53369685  -0.45722689  -0.39657845
+   0.44302714   0.62436596]
+E1 = -120.27380376904435  E_coul = 37.245869410757635
+Extra cycle  E= -74.9278976030378  delta_E= -1.85e-12  |g|= 6.55e-07  |ddm|= 3.18e-06
+    CPU time for scf_cycle      6.95 sec, wall time      0.36 sec
+    CPU time for SCF      7.18 sec, wall time      0.37 sec
+converged SCF energy = -74.9278976030378
+
+******** <class 'pyscf.mp.mp2.RMP2'> ********
+nocc = 4, nmo = 6
+frozen orbitals 1
+max_memory 15000 MB (current use 305 MB)
+    CPU time for ehf      0.00 sec, wall time      0.00 sec
+transform (ia|jb) incore
+    CPU time for Integral transformation      0.31 sec, wall time      0.02 sec
+    CPU time for ao2mo      0.31 sec, wall time      0.02 sec
+    CPU time for kernel      0.00 sec, wall time      0.00 sec
+    CPU time for RMP2      0.31 sec, wall time      0.02 sec
+E(RMP2) = -74.9805362786865  E_corr = -0.0526386756487716
+E(SCS-RMP2) = -74.9877095554811  E_corr = -0.0598119524433585
+E_corr(same-spin) = -0.00387052884827006
+E_corr(oppo-spin) = -0.0487681468005016
+Psi4 predefined RIFIT basis set def2-svp-ri for mp2fit
+Default auxbasis def2-svp-ri is applied universally
+num shells = 28, num cGTOs = 76
+
+DF-MP2 unrelaxed density calculation
+
+Calculating integrals
+    DF integral transformation
+    MO dimensions: 5 x 2
+    Aux functions: 76
+    Calculating three center integrals in MO basis.
+    Temporary file: /big/scratch/pyscf/c759euog
+    Calculating fitted three center integrals.
+    Storage file: /big/scratch/pyscf/2akpb88p
+    Batch size: 5 (of 5)
+    DF transformation finished
+Stored in file: /big/scratch/pyscf/2akpb88p
+    Density matrix contributions for DF-RMP2
+    Occupied orbitals: 5
+    Virtual orbitals:  2
+    Frozen orbitals:   0
+    Three center integrals from file: /big/scratch/pyscf/2akpb88p
+    Storing amplitudes in temporary file: /big/scratch/pyscf/bgtt0snz
+    Density matrix contributions calculation finished
+
+******** <class 'pyscf.mcscf.casci.CASCI'> ********
+CAS (5e+5e, 7o), ncore = 0, nvir = 0
+natorb = False
+canonicalization = True
+sorting_mo_energy = False
+max_memory 15000 MB (current use 308 MB)
+******** <class 'pyscf.fci.addons.SpinPenaltyFCISolver'> ********
+max. cycles = 200
+conv_tol = 1e-08
+davidson only = True
+linear dependence = 1e-12
+level shift = 0.001
+max iter space = 12
+max_memory 15000 MB
+nroots = 1
+pspace_size = 400
+spin = 0
+Start CASCI
+MO integrals int2e_sph are saved in <HDF5 file "0s0kv3ph" (mode r+)>/eri_mo
+num. MO ints = 784, required disk 0.006272 MB
+step1: tmpfile /big/scratch/pyscf/1qj57lci  0.006272 MB
+step1: (ij,kl) = (28,28), mem cache 15000 MB, iobuf 2500 MB
+    CPU time for Initializing ao2mo.outcore.half_e1      0.06 sec, wall time      0.00 sec
+step 1 [1/1], AO [0:15], len(buf) = 28
+    CPU time for gen AO/transform MO [1/1]      0.11 sec, wall time      0.00 sec
+    CPU time for AO->MO transformation for int2e_sph 1 pass      0.30 sec, wall time      0.01 sec
+step2: kl-pair (ao 28, mo 28), mem 0.03584 MB, ioblock 0.03584 MB
+step 2 [1/1], [0,0:28], row = 28
+step 2 [1/1] CPU time:      0.20, Wall time:      0.01
+    CPU time for AO->MO transformation for int2e_sph 2 pass      0.27 sec, wall time      0.01 sec
+    CPU time for AO->MO transformation for int2e_sph       0.57 sec, wall time      0.03 sec
+    CPU time for integral transformation to CAS space      0.57 sec, wall time      0.03 sec
+core energy = 8.10003675524894
+    CPU time for effective h1e in CAS space      0.19 sec, wall time      0.01 sec
+tol 1e-08  toloose 0.0001
+max_cycle 200  max_space 12  max_memory 14691  incore True
+    CPU time for contract_2e      8.56 sec, wall time      0.41 sec
+davidson 0 1  |r|= 0.347  e= [-83.02793435]  max|de|=  -83  lindep=    1
+    CPU time for contract_2e      7.58 sec, wall time      0.37 sec
+davidson 1 2  |r|= 0.103  e= [-83.0976444]  max|de|= -0.0697  lindep= 0.999
+    CPU time for contract_2e      6.82 sec, wall time      0.33 sec
+davidson 2 3  |r|= 0.0292  e= [-83.10270966]  max|de|= -0.00507  lindep= 0.997
+    CPU time for contract_2e      2.32 sec, wall time      0.11 sec
+davidson 3 4  |r|= 0.011  e= [-83.10298955]  max|de|= -0.00028  lindep= 0.98
+    CPU time for contract_2e      0.26 sec, wall time      0.01 sec
+davidson 4 5  |r|= 0.00463  e= [-83.10304207]  max|de|= -5.25e-05  lindep= 0.94
+    CPU time for contract_2e      0.13 sec, wall time      0.01 sec
+davidson 5 6  |r|= 0.0014  e= [-83.10304804]  max|de|= -5.97e-06  lindep= 0.927
+    CPU time for contract_2e      0.11 sec, wall time      0.01 sec
+davidson 6 7  |r|= 0.0005  e= [-83.10304854]  max|de|= -5.03e-07  lindep= 0.966
+    CPU time for contract_2e      3.42 sec, wall time      0.16 sec
+davidson 7 8  |r|= 0.000154  e= [-83.10304858]  max|de|= -4.17e-08  lindep= 0.947
+    CPU time for contract_2e      6.35 sec, wall time      0.30 sec
+root 0 converged  |r|= 4.89e-05  e= -83.10304858928359  max|de|= -4.8e-09
+converged 8 9  |r|= 4.89e-05  e= [-83.10304859]  max|de|= -4.8e-09
+    CPU time for FCI solver     41.46 sec, wall time      1.96 sec
+Density matrix diagonal elements [1.99999762 1.99826862 1.99752271 1.96810596 1.93164035 0.07064355
+ 0.0338212 ]
+i = 1  <i|F|i> = -20.26940301
+i = 2  <i|F|i> =  -0.40712048
+i = 3  <i|F|i> =  -1.13429600
+i = 4  <i|F|i> =  -0.61078889
+i = 5  <i|F|i> =  -0.48884757
+i = 6  <i|F|i> =   0.44079076
+i = 7  <i|F|i> =   0.59691242
+CASCI converged
+CASCI E = -75.0030118340347  E(CI) = -83.1030485892836  S^2 = 0.0000000
+
+******** <class 'pyscf.mcscf.casci.CASCI'> ********
+CAS (2e+2e, 4o), ncore = 3, nvir = 0
+natorb = True
+canonicalization = True
+sorting_mo_energy = False
+max_memory 15000 MB (current use 312 MB)
+******** <class 'pyscf.fci.direct_spin1.FCISolver'> ********
+max. cycles = 200
+conv_tol = 1e-08
+davidson only = False
+linear dependence = 1e-12
+level shift = 0.001
+max iter space = 12
+max_memory 15000 MB
+nroots = 1
+pspace_size = 400
+spin = None
+Start CASCI
+    CPU time for integral transformation to CAS space      0.33 sec, wall time      0.02 sec
+core energy = -66.2329713857281
+    CPU time for effective h1e in CAS space      0.89 sec, wall time      0.04 sec
+    CPU time for FCI solver      0.26 sec, wall time      0.01 sec
+where_natorb [np.int64(0), np.int64(1), np.int64(2), np.int64(3)]
+Natural occ [1.98418775 1.00064364 0.99947232 0.01569629]
+Natural orbital (expansion on meta-Lowdin AOs) in CAS space
+               #1        #2        #3        #4       
+0 O 1s           0.02722   0.01138   0.00121  -0.00386
+0 O 2s           0.89519   0.30737   0.09198   0.13513
+0 O 2px          0.00000  -0.00000   0.00000  -0.00000
+0 O 2py          0.10000  -0.49927  -0.50276   0.69603
+0 O 2pz         -0.03523  -0.57592   0.54482  -0.06572
+1 H 1s           0.27896  -0.34727   0.48784   0.12583
+2 H 1s           0.32991  -0.45149  -0.45160  -0.69074
+<CAS-nat-orb|mo-hf>  4      2        0.97978456
+<CAS-nat-orb|mo-hf>  5      4       -0.93457408
+<CAS-nat-orb|mo-hf>  6      3        0.92023111
+<CAS-nat-orb|mo-hf>  7      6       -0.95384891
+i = 1  <i|F|i> = -20.32261789
+i = 2  <i|F|i> =  -0.49115213
+i = 3  <i|F|i> =   0.22455947
+i = 4  <i|F|i> =  -1.25976145
+i = 5  <i|F|i> =  -0.32353383
+i = 6  <i|F|i> =  -0.33012582
+i = 7  <i|F|i> =   0.37312628
+CASCI converged
+CASCI E = -73.6243184924311  E(CI) = -7.39134710670292  S^2 = 2.0000000

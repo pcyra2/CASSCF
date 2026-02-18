@@ -19,7 +19,12 @@ git clone https://github.com/pcyra2/CASSCF.git
 cd CASSCF
 conda create -n CASSCF
 conda activate CASSCF
-conda install python==3.13
+conda install python==3.11
+git clone https://github.com/HQSquantumsimulations/ActiveSpaceFinder.git
+cd ActiveSpaceFinder
+pip install . 
+cd ../CASSCF
+
 pip install -e . 
 
 ## Running
@@ -28,7 +33,7 @@ Run in a directory with the molecule.xyz in.
 Preferably if it also has the MP2_natural_orbitals.json this will read in the MP2 natural orbitals from a previous calculation.
 
 To run: 
-```CASSCF -c=NET_CHARGE -s=SPIN -ci=MAX_CASCI[1] -scf=MAX_SCF[2] -m=MAX_MEMORY[3] -size=MAX_HAMILTONIAN_GENERATED[4] ```
+```CASSCF -c=NET_CHARGE -s=SPIN -CI=MAX_CASCI[1] -SCF=MAX_SCF[2] -m=MAX_MEMORY[3] -size=MAX_HAMILTONIAN_GENERATED[4] ```
 
 [1] - The maximum size of CASCI that is actually executed (not the maximum hamiltonian size)
 [2] - The maximum size of CASSCF that is actually executed 
@@ -40,6 +45,7 @@ There are also extra flags to toggle extra functionality:
 -noRDM (Doesnt generate the RDM files associated with CCSD)
 -nevpt (performs NEVPT2 on the CASCI calculations)
 -nelec=NUMBER_ACTIVE_ELECTRONS (Only used in the chemically informed/manually selected active space environment)
+-asf=ASF_Size (Uses ASF to create an active space of size ASF_Size)
 
 For Chemically informed active space calculations, Run the code in the following procedure:
 
