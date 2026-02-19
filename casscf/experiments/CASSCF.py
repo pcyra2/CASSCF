@@ -27,7 +27,9 @@ system_info = dict(filename=glob.glob("*.xyz")[0],
                    nevpt2 = False,
                    nelec_active = None,
                    ASF = False,
-                   ASF_Size = 0)
+                   ASF_Size = 0,
+                   HACK_ME = False,
+                   )
 
 def main():
     if os.path.isfile("./summary.json"):
@@ -75,7 +77,9 @@ def main():
             system_info["noRDM"] = True
         elif "-nevpt" in arg:
             system_info["nevpt2"] = True
-        
+        elif "--HACK" in arg:
+            system_info["HACK_ME"] = True
+            print("WARNING: HACK MODE ENABLED. THIS MAY CAUSE UNEXPECTED BEHAVIOR. USE WITH CAUTION.")
         else:
             try:
                 orb = int(i)
@@ -104,7 +108,13 @@ def main():
         MP2 = io.jsonRead("MP2_natural_orbitals.json")
         natocc = numpy.asarray(MP2["natocc"])
         natorb = numpy.asarray(MP2["natorb"])
+        print(natorb.shape)
         system_info["nFrozen"] = MP2["nfrozen"]
+        if system_info["HACK_ME"] == True:
+            print("HACK MODE: Overriding natural orbitals with HF orbitals. This is for testing purposes only.")
+
+            molecule, mo_energies, natorb , natocc, _,_ = pyscf.tools.molden.load("orca.molden")
+            print(natorb.shape)
     else:
         mf.mol.output = "outputs/MP2.out"
         mf.mol.build()
@@ -264,8 +274,6 @@ def main():
                     summary["CASCI"][active_space]["nevpt2"] = nevpt.e_corr
                 io.jsonDump(summary, "./summary.json")
 
-
-
     elif len(orbs) > 1: ### Manual selection method
         active_space = f"{system_info['nelec_active']}-{len(orbs)}"
         mo_list = orbs
@@ -273,7 +281,13 @@ def main():
                 mf.mol.output = f"outputs/CASCI_{active_space}.out"
                 mf.mol.build()
                 ci_s = time.perf_counter()
-                CASCI, CIorb, CIocc, nevpt = pyscfTools.CASCI(mf, nActiveElectrons=system_info["nelec_active"], 
+                if system_info["HACK_ME"] == True:
+                    CASCI, CIorb, CIocc, nevpt = pyscfTools.CASCI(molecule, nActiveElectrons=system_info["nelec_active"], 
+                                                       nActiveOrbitals=len(orbs), natocc=natocc, 
+                                                       natorb=natorb, cas_list=orbs, 
+                                                       max_run=system_info["max_CASCI"], nevpt2 = system_info["nevpt2"])
+                else:
+                    CASCI, CIorb, CIocc, nevpt = pyscfTools.CASCI(mf, nActiveElectrons=system_info["nelec_active"], 
                                                        nActiveOrbitals=len(orbs), natocc=natocc, 
                                                        natorb=natorb, cas_list=orbs, 
                                                        max_run=system_info["max_CASCI"], nevpt2 = system_info["nevpt2"])
@@ -295,6 +309,8 @@ def main():
                     summary["CASCI"][active_space]["nevpt2"] = nevpt.e_corr
                 io.jsonDump(summary, "./summary.json")
 
+                pyscf.tools.molden.from_mo(molecule, f"{active_space}_CASCI.molden", CIorb, occ=CIocc)
+
         if os.path.isfile(f"hamiltonians/{active_space}_CASSCF.json") is False and len(mo_list) <= system_info["max_CASSCF"]:
             mf.mol.output = f"outputs/CASSCF_{active_space}.out"
             mf.mol.build()
@@ -303,7 +319,7 @@ def main():
                                                         nActiveOrbitals=len(orbs), natocc=natocc, 
                                                         natorb=natorb, NFrozen=system_info["nFrozen"], 
                                                         max_run = system_info["max_CASSCF"],
-                                                        nevpt2 = system_info["nevpt2"])
+                                                       )
             cs_e = time.perf_counter()
             try:
                 print("CASSCF Energy: ", CASSCF.e_tot)
@@ -316,10 +332,15 @@ def main():
             summary["CASSCF"][active_space] = dict(e_tot = CASSCF.e_tot, 
                                                     e_cas = CASSCF.e_cas, 
                                                     time = cs_e - cs_s,
-                                                    orbitals = mo_list)
+                                                    orbitals = mo_list,
+                                                    coeff = CASorb.tolist())
             if nevpt is not None:
                 summary["CASSCF"][active_space]["nevpt2"] = nevpt
             io.jsonDump(summary, "./summary.json")
+
+            tmp =dict(natocc =natocc.tolist(), natorb = CASorb.tolist(),)
+            io.jsonDump(tmp, f"CASCF_{active_space}_orbs.json")
+            pyscf.tools.molden.from_mo(molecule, f"{active_space}_CASSCF.molden", CASorb, occ=natocc)
 
 
 if __name__ == "__main__":

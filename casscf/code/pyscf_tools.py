@@ -228,7 +228,7 @@ def CASSCF(mf, nActiveElectrons:int, nActiveOrbitals:int, natocc:numpy.array = N
     cas.conv_tol_grad = 1e-3
     cas.conv_tol = 1e-8
     cas.with_dep4 = True
-    if nActiveElectrons <max_run:
+    if nActiveElectrons <=max_run:
         cas.kernel(natorb)
         # natorb, natocc = make_natorbs_mp2(cas)
         natorb = cas.cas_natorb()[0]
@@ -248,13 +248,13 @@ def CASCI(mf, nActiveElectrons:int, nActiveOrbitals:int, natocc:numpy.array = No
     cas.natorb = True
     # cas.internal_rotation = True
 
-    if nActiveElectrons < max_run:
+    if nActiveElectrons <= max_run:
         cas.kernel(natorb)
         if nevpt2:
             nevpt = mrpt.nevpt2.NEVPT(cas)
             nevpt.kernel()
             # pprint(vars(nevpt))
-    return cas, natorb, natocc, nevpt
+    return cas, natorb, cas.mo_occ, nevpt
 
 def genCube(coeffs:numpy.array, Molecule: pyscf.M,  path:str, UHF:bool = False, basis:str = "molecular") -> None: # pragma: no cover
     """Generates cube files

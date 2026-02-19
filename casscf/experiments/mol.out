@@ -1,80 +1,88 @@
-#INFO: **** input file is /home/ross/GitRepos/CASSCF/casscf/experiments/test_avas.py ****
-#!/usr/bin/env python
-
-import casscf.code.io as io
-import casscf.code.Hamiltonian as Hamiltonian
-import casscf.code.pyscf_tools as pyscfTools
-import os
-import glob
-from pprint import pprint
-import numpy
-import pyscf
-import sys
-import time
-
-from asf.wrapper import find_from_mol, sized_space_from_mol , sized_space_from_scf
-
-
-system_info = dict(
-                   charge=0,
-                   spin=0,
-                   basis="sto3g",
-                   nFrozen=None, # Number of frozen spatial orbitals
-                   max_memory=15000,
-                   max_CASCI = 10,
-                   max_CASSCF = 8,
-                   max_active_space = 40,
-                   ccsd = False,
-                   noRDM = False,
-                   nevpt2 = False,
-                   nelec_active = None)
-
-def main():
-    mol = pyscfTools.genMol("O 0 0 0; H 0 0 1; H 0 1.2 0", basis=system_info["basis"], charge=system_info["charge"], spin=system_info["spin"], symmetry=False, mem=system_info["max_memory"])
-    nelec = mol.nelec
-    mf = pyscfTools.RHF(mol)
-    mp2, natocc , natorb = pyscfTools.make_natural_orbitals(mf, True, False)
-    active_space = 8
-    mo_list = []
-    
-    pprint(mol.ao_labels())
-    active_space = sized_space_from_scf(mf, 4)
-    pprint(vars(active_space))
-    CASCI, CIorb, CIocc, nvept = pyscfTools.CASCI(mf, active_space.nel, active_space.norb, natocc=[], natorb=active_space.mo_coeff, cas_list=active_space.mo_list, nevpt2=system_info["nevpt2"])
-
-    pprint(vars(CASCI))
-    
-if __name__ == "__main__":
-    main()#INFO: ******************** input file end ********************
-
-
 System: uname_result(system='Linux', node='Quantum', release='6.17.0-14-generic', version='#14~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Thu Jan 15 15:52:10 UTC 2', machine='x86_64')  Threads 24
 Python 3.11.0 | packaged by conda-forge | (main, Jan 14 2023, 12:27:40) [GCC 11.3.0]
 numpy 2.4.2  scipy 1.17.0  h5py 3.15.1
-Date: Tue Feb 17 11:20:31 2026
+Date: Thu Feb 19 15:20:47 2026
 PySCF version 2.12.1
 PySCF path  /home/ross/Software/miniconda/envs/AUTOCAS/lib/python3.11/site-packages/pyscf
 
 [ENV] PYSCF_TMPDIR /big/scratch/pyscf
 [CONFIG] conf_file None
 [INPUT] verbose = 6
-[INPUT] max_memory = 15000 
-[INPUT] num. atoms = 3
-[INPUT] num. electrons = 10
+[INPUT] max_memory = 100 
+[INPUT] num. atoms = 55
+[INPUT] num. electrons = 242
 [INPUT] charge = 0
 [INPUT] spin (= nelec alpha-beta = 2S) = 0
 [INPUT] symmetry False subgroup None
 [INPUT] Mole.unit = Ang
 [INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
-[INPUT]  1 O      0.000000000000   0.000000000000   0.000000000000 AA    0.000000000000   0.000000000000   0.000000000000 Bohr   0.0
-[INPUT]  2 H      0.000000000000   0.000000000000   1.000000000000 AA    0.000000000000   0.000000000000   1.889726124565 Bohr   0.0
-[INPUT]  3 H      0.000000000000   1.200000000000   0.000000000000 AA    0.000000000000   2.267671349478   0.000000000000 Bohr   0.0
+[INPUT]  1 C     48.304001000000  82.334000000000  38.831001000000 AA   91.281332610717 155.588710739940  73.379957032712 Bohr   0.0
+[INPUT]  2 C     48.926998000000  81.214996000000  37.964001000000 AA   92.458626317143 153.474099647647  71.741564482714 Bohr   0.0
+[INPUT]  3 C     49.191002000000  80.010002000000  38.830002000000 AA   92.957521572932 151.196991005903  73.378069196314 Bohr   0.0
+[INPUT]  4 N     50.513000000000  79.638000000000  39.112999000000 AA   95.455735730155 150.494009108112  73.912856020387 Bohr   0.0
+[INPUT]  5 C     50.859001000000  78.314003000000  39.622002000000 AA   96.109582858981 147.992017388367  74.874732286969 Bohr   0.0
+[INPUT]  6 C     50.230000000000  77.148003000000  38.789001000000 AA   94.920943236903 145.788596727124  73.300588535480 Bohr   0.0
+[INPUT]  7 N     49.966999000000  76.052002000000  39.569000000000 AA   94.423943376416 143.717455004874  74.774573022915 Bohr   0.0
+[INPUT]  8 C     49.744999000000  74.776001000000  38.998001000000 AA   94.004424176763 141.306162580203  73.695541295514 Bohr   0.0
+[INPUT]  9 C     51.153000000000  74.147003000000  38.827999000000 AA   96.665160449877 140.117528627304  73.374284074886 Bohr   0.0
+[INPUT] 10 C     51.292000000000  72.727997000000  38.223999000000 AA   96.927832381191 137.435995918189  72.232889495649 Bohr   0.0
+[INPUT] 11 C     52.061001000000  71.695000000000  38.799000000000 AA   98.381033660708 135.483914500692  73.319483907000 Bohr   0.0
+[INPUT] 12 C     51.884998000000  70.514999000000  37.965000000000 AA   98.048436193606 133.254035783979  71.743452319113 Bohr   0.0
+[INPUT] 13 C     52.176998000000  69.130997000000  38.245998000000 AA   98.600236221979 130.638651048129  72.274461580663 Bohr   0.0
+[INPUT] 14 C     52.972000000000  68.719002000000  39.458000000000 AA  100.102572270460 129.860093333439  74.564813423088 Bohr   0.0
+[INPUT] 15 C     52.790001000000  68.919998000000  40.747002000000 AA   99.758644005516 130.239920725572  77.000674177105 Bohr   0.0
+[INPUT] 16 C     51.779999000000  69.577003000000  41.452000000000 AA   97.850016840253 131.481480238042  78.332927315471 Bohr   0.0
+[INPUT] 17 C     51.921001000000  69.444000000000  42.855999000000 AA   98.116472003269 131.230140994296  80.986100904634 Bohr   0.0
+[INPUT] 18 C     53.134998000000  68.879997000000  43.457001000000 AA  100.410593849312 130.164329790863  82.121830084950 Bohr   0.0
+[INPUT] 19 N     54.014999000000  68.154999000000  42.667000000000 AA  102.073554728656 128.794282130006  80.628944556818 Bohr   0.0
+[INPUT] 20 N     53.796001000000  68.224998000000  41.340000000000 AA  101.659708486828 128.926561068999  78.121277989520 Bohr   0.0
+[INPUT] 21 N     54.599998000000  67.521004000000  40.509998000000 AA  103.179042621800 127.596205215662  76.552801526678 Bohr   0.0
+[INPUT] 22 C     54.132999000000  67.806000000000  39.293999000000 AA  102.296542411354 128.134769602259  74.254896448933 Bohr   0.0
+[INPUT] 23 H     54.577999000000  67.372002000000  38.408001000000 AA  103.137470536786 127.314632243650  72.580602882021 Bohr   0.0
+[INPUT] 24 H     53.252998000000  68.875999000000  44.533001000000 AA  100.633581532011 130.156774665817  84.155175394982 Bohr   0.0
+[INPUT] 25 H     51.243000000000  69.962997000000  43.522999000000 AA   96.835235801087 132.210903183767  82.246548229719 Bohr   0.0
+[INPUT] 26 H     50.957001000000  70.106003000000  40.985001000000 AA   96.294776019188 132.481145357937  77.450427105025 Bohr   0.0
+[INPUT] 27 C     51.696999000000  68.206001000000  37.337002000000 AA   97.693169571914 128.890661941811  70.556708092338 Bohr   0.0
+[INPUT] 28 C     50.956001000000  68.733002000000  36.200001000000 AA   96.292886293063 129.886549499183  68.408087598981 Bohr   0.0
+[INPUT] 29 N     50.645000000000  70.013000000000  35.981998000000 AA   95.705179578598 132.305395159174  67.996121634648 Bohr   0.0
+[INPUT] 30 C     51.062000000000  70.892998000000  36.884998000000 AA   96.493195372541 133.968350369339  69.702544325130 Bohr   0.0
+[INPUT] 31 N     50.787998000000  72.241997000000  37.016998000000 AA   95.975406634958 136.517589021651  69.951988173573 Bohr   0.0
+[INPUT] 32 H     50.278000000000  72.744003000000  36.305000000000 AA   95.011650090882 137.466242874539  68.606506952335 Bohr   0.0
+[INPUT] 33 H     50.644001000000  68.017998000000  35.439999000000 AA   95.703291742199 128.535387761214  66.971891964860 Bohr   0.0
+[INPUT] 34 Cl    52.063999000000  66.491997000000  37.480999000000 AA   98.386699059629 125.651663805402  70.828822985097 Bohr   0.0
+[INPUT] 35 H     52.578999000000  71.834000000000  39.741001000000 AA   99.359908013780 135.746586432007  75.099607806066 Bohr   0.0
+[INPUT] 36 H     51.623001000000  74.123001000000  39.819000000000 AA   97.553333618148 140.072171420862  75.247004554056 Bohr   0.0
+[INPUT] 37 H     51.745998000000  74.836998000000  38.214001000000 AA   97.785764262291 141.421430204623  72.213996013855 Bohr   0.0
+[INPUT] 38 H     49.205002000000  74.931999000000  38.056999000000 AA   92.983977738676 141.600956076183  71.917305232846 Bohr   0.0
+[INPUT] 39 H     49.089001000000  74.150002000000  39.617001000000 AA   92.764767618500 140.123195915952  74.865281766620 Bohr   0.0
+[INPUT] 40 H     49.895000000000  76.105003000000  40.577999000000 AA   94.287884985174 143.817612379202  76.681304792875 Bohr   0.0
+[INPUT] 41 O     50.216000000000  77.134003000000  37.542000000000 AA   94.894487071159 145.762140561380  70.944098168422 Bohr   0.0
+[INPUT] 42 C     52.416000000000  78.224998000000  39.567001000000 AA   99.051884545202 147.823822314650  74.770795460392 Bohr   0.0
+[INPUT] 43 C     52.966999000000  79.611000000000  39.289001000000 AA  100.093121750112 150.442986502749  74.245451597763 Bohr   0.0
+[INPUT] 44 C     51.752998000000  80.297997000000  38.665001000000 AA   97.798992345163 151.741222681147  73.066262496034 Bohr   0.0
+[INPUT] 45 H     51.851002000000  80.208000000000  37.576000000000 AA   97.984193064275 151.571152999114  71.008348856657 Bohr   0.0
+[INPUT] 46 H     51.780998000000  81.364998000000  38.919998000000 AA   97.851904676651 153.757562345784  73.548136988620 Bohr   0.0
+[INPUT] 47 H     53.861000000000  79.653999000000  38.653999000000 AA  101.782538795199 150.524242836379  73.045471729212 Bohr   0.0
+[INPUT] 48 H     53.152000000000  80.039001000000  40.282001000000 AA  100.442722972882 151.251791173789  76.121949639456 Bohr   0.0
+[INPUT] 49 H     52.716000000000  77.467003000000  38.834000000000 AA   99.618802382572 146.391419360860  73.385624321360 Bohr   0.0
+[INPUT] 50 H     52.784000000000  77.889000000000  40.543999000000 AA   99.747303759042 147.188878116248  76.617054104640 Bohr   0.0
+[INPUT] 51 H     50.521999000000  78.165001000000  40.654999000000 AA   95.472741375550 147.710444416354  76.826813704466 Bohr   0.0
+[INPUT] 52 O     48.243000000000  79.397003000000  39.367001000000 AA   91.166057427392 150.038590781271  74.392850235479 Bohr   0.0
+[INPUT] 53 H     49.748001000000  81.601997000000  37.348999000000 AA   94.010097134589 154.205425547580  70.579379136654 Bohr   0.0
+[INPUT] 54 H     48.512001000000  82.193001000000  39.897999000000 AA   91.674395644626 155.322261246102  75.396291028171 Bohr   0.0
+[INPUT] 55 H     47.213001000000  82.390999000000  38.729000000000 AA   89.219641408816 155.696423239314  73.187203078280 Bohr   0.0
 [INPUT] ---------------- BASIS SET ---------------- 
 [INPUT] l, kappa, [nprim/nctr], expnt,             c_1 c_2 ...
-[INPUT] H
-[INPUT] 0    0    [3    /1   ]  3.42525091        0.15432897
-                                0.62391373        0.53532814
-                                0.1688554         0.44463454
+[INPUT] N
+[INPUT] 0    0    [3    /1   ]  99.106169         0.15432897
+                                18.052312         0.53532814
+                                4.8856602         0.44463454
+[INPUT] 0    0    [3    /1   ]  3.7804559         -0.09996723
+                                0.8784966         0.39951283
+                                0.2857144         0.70011547
+[INPUT] 1    0    [3    /1   ]  3.7804559         0.15591627
+                                0.8784966         0.60768372
+                                0.2857144         0.39195739
 [INPUT] O
 [INPUT] 0    0    [3    /1   ]  130.70932         0.15432897
                                 23.808861         0.53532814
@@ -85,263 +93,41 @@ PySCF path  /home/ross/Software/miniconda/envs/AUTOCAS/lib/python3.11/site-packa
 [INPUT] 1    0    [3    /1   ]  5.0331513         0.15591627
                                 1.1695961         0.60768372
                                 0.380389          0.39195739
+[INPUT] C
+[INPUT] 0    0    [3    /1   ]  71.616837         0.15432897
+                                13.045096         0.53532814
+                                3.5305122         0.44463454
+[INPUT] 0    0    [3    /1   ]  2.9412494         -0.09996723
+                                0.6834831         0.39951283
+                                0.2222899         0.70011547
+[INPUT] 1    0    [3    /1   ]  2.9412494         0.15591627
+                                0.6834831         0.60768372
+                                0.2222899         0.39195739
+[INPUT] H
+[INPUT] 0    0    [3    /1   ]  3.42525091        0.15432897
+                                0.62391373        0.53532814
+                                0.1688554         0.44463454
+[INPUT] Cl
+[INPUT] 0    0    [3    /1   ]  601.3456136       0.1543289673
+                                109.5358542       0.5353281423
+                                29.64467686       0.4446345422
+[INPUT] 0    0    [3    /1   ]  38.96041889       -0.09996722919
+                                9.053563477       0.3995128261
+                                2.944499834       0.7001154689
+[INPUT] 0    0    [3    /1   ]  2.129386495       -0.219620369
+                                0.5940934274      0.2255954336
+                                0.232524141       0.900398426
+[INPUT] 1    0    [3    /1   ]  38.96041889       0.155916275
+                                9.053563477       0.6076837186
+                                2.944499834       0.3919573931
+[INPUT] 1    0    [3    /1   ]  2.129386495       0.01058760429
+                                0.5940934274      0.5951670053
+                                0.232524141       0.462001012
 
-nuclear repulsion = 8.10003675524894
-number of shells = 5
-number of NR pGTOs = 21
-number of NR cGTOs = 7
-basis = sto3g
+nuclear repulsion = 3210.86242787507
+number of shells = 123
+number of NR pGTOs = 573
+number of NR cGTOs = 191
+basis = sto-3g
 ecp = {}
-CPU time:         4.61
-
-
-******** <class 'pyscf.scf.hf.RHF'> ********
-method = RHF
-initial guess = minao
-damping factor = 0
-level_shift factor = 0
-DIIS = <class 'pyscf.scf.diis.CDIIS'>
-diis_start_cycle = 1
-diis_space = 8
-diis_damp = 0
-SCF conv_tol = 1e-09
-SCF conv_tol_grad = None
-SCF max_cycles = 50
-direct_scf = True
-direct_scf_tol = 1e-13
-chkfile to save SCF result = /big/scratch/pyscf/tmpwutjukkb
-max_memory 15000 MB (current use 291 MB)
-cond(S) = 4.593197174156775
-Set gradient conv threshold to 3.16228e-05
-Initial guess from minao.
-Nelec from initial guess = 9.862765996871872
-E1 = -118.55476688519198  E_coul = 35.89616868189365
-init E= -74.5585614480494
-    CPU time for initialize scf      2.21 sec, wall time      0.13 sec
-  HOMO = -0.361520687211391  LUMO = 0.239063387177822
-  mo_energy =
-[-20.5508223   -1.48024069  -0.58586745  -0.52006473  -0.36152069
-   0.23906339   0.44813276]
-E1 = -121.86469639527185  E_coul = 38.91579973564962
-cycle= 1 E= -74.8488599043733  delta_E= -0.29  |g|= 0.434  |ddm|= 1.67
-    CPU time for cycle= 1      0.43 sec, wall time      0.02 sec
-diis-norm(errvec)=0.613254
-diis-c [-0.37608086  1.        ]
-  HOMO = -0.219107035430063  LUMO = 0.479189995446519
-  mo_energy =
-[-19.93728413  -1.10581298  -0.45608395  -0.34456867  -0.21910704
-   0.47919      0.69204726]
-E1 = -119.9173339469322  E_coul = 36.892946939419915
-cycle= 2 E= -74.9243502522633  delta_E= -0.0755  |g|= 0.102  |ddm|= 0.771
-    CPU time for cycle= 2      0.97 sec, wall time      0.05 sec
-diis-norm(errvec)=0.144377
-diis-c [-0.00218898  0.18258868  0.81741132]
-  HOMO = -0.395122023991073  LUMO = 0.439581173814111
-  mo_energy =
-[-20.27350192  -1.22598807  -0.53365382  -0.4557547   -0.39512202
-   0.43958117   0.62383947]
-E1 = -120.27085927730015  E_coul = 37.24296139974418
-cycle= 3 E= -74.927861122307  delta_E= -0.00351  |g|= 0.00883  |ddm|= 0.122
-    CPU time for cycle= 3      0.89 sec, wall time      0.04 sec
-diis-norm(errvec)=0.0124883
-diis-c [-1.23124173e-05 -6.07692851e-02 -2.82942540e-01  1.34371183e+00]
-  HOMO = -0.396856867789954  LUMO = 0.443552006297178
-  mo_energy =
-[-20.27607217  -1.22848597  -0.53437065  -0.45760738  -0.39685687
-   0.44355201   0.62468112]
-E1 = -120.27336226713281  E_coul = 37.245429018925456
-cycle= 4 E= -74.9278964929584  delta_E= -3.54e-05  |g|= 0.00106  |ddm|= 0.0142
-    CPU time for cycle= 4      0.94 sec, wall time      0.04 sec
-diis-norm(errvec)=0.00149416
-diis-c [-1.60383936e-06  1.88670121e-02  8.77836282e-02 -4.24710755e-01
-  1.31806012e+00]
-  HOMO = -0.396574709394671  LUMO = 0.442850238951692
-  mo_energy =
-[-20.27529179  -1.22809866  -0.53359981  -0.45700288  -0.39657471
-   0.44285024   0.62420312]
-E1 = -120.27389863831155  E_coul = 37.24596439606036
-cycle= 5 E= -74.9278974870022  delta_E= -9.94e-07  |g|= 0.000344  |ddm|= 0.0028
-    CPU time for cycle= 5      0.28 sec, wall time      0.01 sec
-diis-norm(errvec)=0.000486349
-diis-c [-8.84849226e-09 -5.63147500e-04 -1.50160667e-03  3.96315868e-03
- -4.57265192e-01  1.45536679e+00]
-  HOMO = -0.396584764110891  LUMO = 0.443041317633389
-  mo_energy =
-[-20.27541343  -1.22813563  -0.53370992  -0.45722668  -0.39658476
-   0.44304132   0.62435499]
-E1 = -120.27379829066761  E_coul = 37.24586393279636
-cycle= 6 E= -74.9278976026223  delta_E= -1.16e-07  |g|= 2.35e-05  |ddm|= 0.00127
-    CPU time for cycle= 6      0.11 sec, wall time      0.00 sec
-diis-norm(errvec)=3.32759e-05
-diis-c [-1.30791769e-10 -8.76340127e-05 -8.63400609e-04  5.80151802e-03
-  1.88027264e-01 -6.50137584e-01  1.45725984e+00]
-  HOMO = -0.396579044904921  LUMO = 0.443028059045754
-  mo_energy =
-[-20.27540346  -1.22812893  -0.53369789  -0.45722787  -0.39657904
-   0.44302806   0.62436628]
-E1 = -120.2738037639012  E_coul = 37.24586940561635
-cycle= 7 E= -74.9278976030359  delta_E= -4.14e-10  |g|= 1.73e-06  |ddm|= 6.55e-05
-    CPU time for cycle= 7      0.69 sec, wall time      0.03 sec
-  HOMO = -0.396578450489282  LUMO = 0.443027141620523
-  mo_energy =
-[-20.27540202  -1.22812826  -0.53369685  -0.45722689  -0.39657845
-   0.44302714   0.62436596]
-E1 = -120.27380376904435  E_coul = 37.245869410757635
-Extra cycle  E= -74.9278976030378  delta_E= -1.85e-12  |g|= 6.55e-07  |ddm|= 3.18e-06
-    CPU time for scf_cycle      6.95 sec, wall time      0.36 sec
-    CPU time for SCF      7.18 sec, wall time      0.37 sec
-converged SCF energy = -74.9278976030378
-
-******** <class 'pyscf.mp.mp2.RMP2'> ********
-nocc = 4, nmo = 6
-frozen orbitals 1
-max_memory 15000 MB (current use 305 MB)
-    CPU time for ehf      0.00 sec, wall time      0.00 sec
-transform (ia|jb) incore
-    CPU time for Integral transformation      0.31 sec, wall time      0.02 sec
-    CPU time for ao2mo      0.31 sec, wall time      0.02 sec
-    CPU time for kernel      0.00 sec, wall time      0.00 sec
-    CPU time for RMP2      0.31 sec, wall time      0.02 sec
-E(RMP2) = -74.9805362786865  E_corr = -0.0526386756487716
-E(SCS-RMP2) = -74.9877095554811  E_corr = -0.0598119524433585
-E_corr(same-spin) = -0.00387052884827006
-E_corr(oppo-spin) = -0.0487681468005016
-Psi4 predefined RIFIT basis set def2-svp-ri for mp2fit
-Default auxbasis def2-svp-ri is applied universally
-num shells = 28, num cGTOs = 76
-
-DF-MP2 unrelaxed density calculation
-
-Calculating integrals
-    DF integral transformation
-    MO dimensions: 5 x 2
-    Aux functions: 76
-    Calculating three center integrals in MO basis.
-    Temporary file: /big/scratch/pyscf/c759euog
-    Calculating fitted three center integrals.
-    Storage file: /big/scratch/pyscf/2akpb88p
-    Batch size: 5 (of 5)
-    DF transformation finished
-Stored in file: /big/scratch/pyscf/2akpb88p
-    Density matrix contributions for DF-RMP2
-    Occupied orbitals: 5
-    Virtual orbitals:  2
-    Frozen orbitals:   0
-    Three center integrals from file: /big/scratch/pyscf/2akpb88p
-    Storing amplitudes in temporary file: /big/scratch/pyscf/bgtt0snz
-    Density matrix contributions calculation finished
-
-******** <class 'pyscf.mcscf.casci.CASCI'> ********
-CAS (5e+5e, 7o), ncore = 0, nvir = 0
-natorb = False
-canonicalization = True
-sorting_mo_energy = False
-max_memory 15000 MB (current use 308 MB)
-******** <class 'pyscf.fci.addons.SpinPenaltyFCISolver'> ********
-max. cycles = 200
-conv_tol = 1e-08
-davidson only = True
-linear dependence = 1e-12
-level shift = 0.001
-max iter space = 12
-max_memory 15000 MB
-nroots = 1
-pspace_size = 400
-spin = 0
-Start CASCI
-MO integrals int2e_sph are saved in <HDF5 file "0s0kv3ph" (mode r+)>/eri_mo
-num. MO ints = 784, required disk 0.006272 MB
-step1: tmpfile /big/scratch/pyscf/1qj57lci  0.006272 MB
-step1: (ij,kl) = (28,28), mem cache 15000 MB, iobuf 2500 MB
-    CPU time for Initializing ao2mo.outcore.half_e1      0.06 sec, wall time      0.00 sec
-step 1 [1/1], AO [0:15], len(buf) = 28
-    CPU time for gen AO/transform MO [1/1]      0.11 sec, wall time      0.00 sec
-    CPU time for AO->MO transformation for int2e_sph 1 pass      0.30 sec, wall time      0.01 sec
-step2: kl-pair (ao 28, mo 28), mem 0.03584 MB, ioblock 0.03584 MB
-step 2 [1/1], [0,0:28], row = 28
-step 2 [1/1] CPU time:      0.20, Wall time:      0.01
-    CPU time for AO->MO transformation for int2e_sph 2 pass      0.27 sec, wall time      0.01 sec
-    CPU time for AO->MO transformation for int2e_sph       0.57 sec, wall time      0.03 sec
-    CPU time for integral transformation to CAS space      0.57 sec, wall time      0.03 sec
-core energy = 8.10003675524894
-    CPU time for effective h1e in CAS space      0.19 sec, wall time      0.01 sec
-tol 1e-08  toloose 0.0001
-max_cycle 200  max_space 12  max_memory 14691  incore True
-    CPU time for contract_2e      8.56 sec, wall time      0.41 sec
-davidson 0 1  |r|= 0.347  e= [-83.02793435]  max|de|=  -83  lindep=    1
-    CPU time for contract_2e      7.58 sec, wall time      0.37 sec
-davidson 1 2  |r|= 0.103  e= [-83.0976444]  max|de|= -0.0697  lindep= 0.999
-    CPU time for contract_2e      6.82 sec, wall time      0.33 sec
-davidson 2 3  |r|= 0.0292  e= [-83.10270966]  max|de|= -0.00507  lindep= 0.997
-    CPU time for contract_2e      2.32 sec, wall time      0.11 sec
-davidson 3 4  |r|= 0.011  e= [-83.10298955]  max|de|= -0.00028  lindep= 0.98
-    CPU time for contract_2e      0.26 sec, wall time      0.01 sec
-davidson 4 5  |r|= 0.00463  e= [-83.10304207]  max|de|= -5.25e-05  lindep= 0.94
-    CPU time for contract_2e      0.13 sec, wall time      0.01 sec
-davidson 5 6  |r|= 0.0014  e= [-83.10304804]  max|de|= -5.97e-06  lindep= 0.927
-    CPU time for contract_2e      0.11 sec, wall time      0.01 sec
-davidson 6 7  |r|= 0.0005  e= [-83.10304854]  max|de|= -5.03e-07  lindep= 0.966
-    CPU time for contract_2e      3.42 sec, wall time      0.16 sec
-davidson 7 8  |r|= 0.000154  e= [-83.10304858]  max|de|= -4.17e-08  lindep= 0.947
-    CPU time for contract_2e      6.35 sec, wall time      0.30 sec
-root 0 converged  |r|= 4.89e-05  e= -83.10304858928359  max|de|= -4.8e-09
-converged 8 9  |r|= 4.89e-05  e= [-83.10304859]  max|de|= -4.8e-09
-    CPU time for FCI solver     41.46 sec, wall time      1.96 sec
-Density matrix diagonal elements [1.99999762 1.99826862 1.99752271 1.96810596 1.93164035 0.07064355
- 0.0338212 ]
-i = 1  <i|F|i> = -20.26940301
-i = 2  <i|F|i> =  -0.40712048
-i = 3  <i|F|i> =  -1.13429600
-i = 4  <i|F|i> =  -0.61078889
-i = 5  <i|F|i> =  -0.48884757
-i = 6  <i|F|i> =   0.44079076
-i = 7  <i|F|i> =   0.59691242
-CASCI converged
-CASCI E = -75.0030118340347  E(CI) = -83.1030485892836  S^2 = 0.0000000
-
-******** <class 'pyscf.mcscf.casci.CASCI'> ********
-CAS (2e+2e, 4o), ncore = 3, nvir = 0
-natorb = True
-canonicalization = True
-sorting_mo_energy = False
-max_memory 15000 MB (current use 312 MB)
-******** <class 'pyscf.fci.direct_spin1.FCISolver'> ********
-max. cycles = 200
-conv_tol = 1e-08
-davidson only = False
-linear dependence = 1e-12
-level shift = 0.001
-max iter space = 12
-max_memory 15000 MB
-nroots = 1
-pspace_size = 400
-spin = None
-Start CASCI
-    CPU time for integral transformation to CAS space      0.33 sec, wall time      0.02 sec
-core energy = -66.2329713857281
-    CPU time for effective h1e in CAS space      0.89 sec, wall time      0.04 sec
-    CPU time for FCI solver      0.26 sec, wall time      0.01 sec
-where_natorb [np.int64(0), np.int64(1), np.int64(2), np.int64(3)]
-Natural occ [1.98418775 1.00064364 0.99947232 0.01569629]
-Natural orbital (expansion on meta-Lowdin AOs) in CAS space
-               #1        #2        #3        #4       
-0 O 1s           0.02722   0.01138   0.00121  -0.00386
-0 O 2s           0.89519   0.30737   0.09198   0.13513
-0 O 2px          0.00000  -0.00000   0.00000  -0.00000
-0 O 2py          0.10000  -0.49927  -0.50276   0.69603
-0 O 2pz         -0.03523  -0.57592   0.54482  -0.06572
-1 H 1s           0.27896  -0.34727   0.48784   0.12583
-2 H 1s           0.32991  -0.45149  -0.45160  -0.69074
-<CAS-nat-orb|mo-hf>  4      2        0.97978456
-<CAS-nat-orb|mo-hf>  5      4       -0.93457408
-<CAS-nat-orb|mo-hf>  6      3        0.92023111
-<CAS-nat-orb|mo-hf>  7      6       -0.95384891
-i = 1  <i|F|i> = -20.32261789
-i = 2  <i|F|i> =  -0.49115213
-i = 3  <i|F|i> =   0.22455947
-i = 4  <i|F|i> =  -1.25976145
-i = 5  <i|F|i> =  -0.32353383
-i = 6  <i|F|i> =  -0.33012582
-i = 7  <i|F|i> =   0.37312628
-CASCI converged
-CASCI E = -73.6243184924311  E(CI) = -7.39134710670292  S^2 = 2.0000000
+CPU time:         4.18
