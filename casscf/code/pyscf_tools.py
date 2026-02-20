@@ -225,9 +225,11 @@ def CASSCF(mf, nActiveElectrons:int, nActiveOrbitals:int, natocc:numpy.array = N
     cas.internal_rotation = True
     if NFrozen > 0:
         cas.frozen = NFrozen
-    cas.conv_tol_grad = 1e-3
-    cas.conv_tol = 1e-8
-    cas.with_dep4 = True
+    cas.conv_tol_grad = 1e-6
+    cas.conv_tol = 1e-12
+    cas.with_dep4 = False
+    cas.max_cycle_macro = 25
+    cas.ah_level_shift = 0.5
     if nActiveElectrons <=max_run:
         cas.kernel(natorb)
         # natorb, natocc = make_natorbs_mp2(cas)

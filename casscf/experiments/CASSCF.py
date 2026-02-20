@@ -244,7 +244,7 @@ def main():
 
     elif len(orbs) == 0 and system_info["max_active_space"] != 0 and system_info["ASF"] == True and system_info["ASF_Size"] > 1: ### ASF Method
         print(f"INFO: Running ASF approach to select active space. Generating active space of size {system_info['ASF_Size']} using ASF.")
-        ActSpace = sized_space_from_scf(mf, system_info["ASF_Size"])
+        ActSpace = sized_space_from_scf(mf, system_info["ASF_Size"], dmrg_kwargs={"maxM":system_info["max_memory"]})
         active_space = f"{system_info['ASF_Size']}_ASF"
         if os.path.isfile(f"hamiltonians/{active_space}_CASCI.json") is False:
                 mf.mol.output = f"outputs/CASCI_{active_space}.out"
