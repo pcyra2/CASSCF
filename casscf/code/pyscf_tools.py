@@ -206,15 +206,15 @@ def make_natural_orbitals(mf, FrozenCore: bool, DensityFit: bool):
         natocc, natorb = mp2.make_natorbs()
     return mp2, natocc, natorb
 
-def CASSCF(mf, nActiveElectrons:int, nActiveOrbitals:int, natocc:numpy.array = None, natorb:numpy.array = None, 
+def CASSCF(mf, nActiveElectrons:int, nActiveOrbitals:int, natorb:numpy.array = None, 
            NFrozen:int = 0, cas_list = None, max_run :int = 16,):
     nevpt = None
-    if natocc is None or natorb is None:
+    if natorb is None:
         if NFrozen > 0:
             FrozenCore = True
         else:
             FrozenCore = False
-        _, natocc, natorb = make_natural_orbitals(mf, FrozenCore=FrozenCore, DensityFit=False)
+        _, _, natorb = make_natural_orbitals(mf, FrozenCore=FrozenCore, DensityFit=False)
 
     cas = mcscf.CASSCF(mf, nActiveOrbitals, nActiveElectrons)
     if cas_list is not None:
@@ -235,13 +235,15 @@ def CASSCF(mf, nActiveElectrons:int, nActiveOrbitals:int, natocc:numpy.array = N
         # natorb, natocc = make_natorbs_mp2(cas)
         natorb = cas.cas_natorb()[0]
         natocc = cas.cas_natorb()[2]
+    else:
+        natocc = None
 
     return cas, natorb, natocc, nevpt
 
-def CASCI(mf, nActiveElectrons:int, nActiveOrbitals:int, natocc:numpy.array = None, natorb:numpy.array = None,  cas_list=None, max_run:int = 16, nevpt2:bool=False):
+def CASCI(mf, nActiveElectrons:int, nActiveOrbitals:int,  natorb:numpy.array = None,  cas_list=None, max_run:int = 16, nevpt2:bool=False):
     nevpt = None
-    if natocc is None or natorb is None:
-        _, natocc, natorb = make_natural_orbitals(mf, FrozenCore=False, DensityFit=False)
+    if natorb is None:
+        _, _, natorb = make_natural_orbitals(mf, FrozenCore=False, DensityFit=False)
 
     cas = mcscf.CASCI(mf, nActiveOrbitals, nActiveElectrons)
     if cas_list is not None:
@@ -256,7 +258,10 @@ def CASCI(mf, nActiveElectrons:int, nActiveOrbitals:int, natocc:numpy.array = No
             nevpt = mrpt.nevpt2.NEVPT(cas)
             nevpt.kernel()
             # pprint(vars(nevpt))
-    return cas, natorb, cas.mo_occ, nevpt
+        natocc = cas.cas_natorb()[2]
+    else:
+        natocc = None
+    return cas, natorb, natocc, nevpt
 
 def genCube(coeffs:numpy.array, Molecule: pyscf.M,  path:str, UHF:bool = False, basis:str = "molecular") -> None: # pragma: no cover
     """Generates cube files
