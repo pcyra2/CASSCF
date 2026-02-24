@@ -8,6 +8,9 @@ import pyscf
 from asf.pairinfo import MOListInfo
 from pprint import pprint
 
+import casscf.code.pyscf_tools as pyscfTools
+
+
 def get_active(mf:pyscf.scf.RHF, size=None, maxM=250, verbose=False, nroots=1, switch_dmrg=10, dmrg_kwargs={}, fci_kwargs={}, max_size=12):
     """Get active space from ASF wrapper."""
     # if size is not None:
@@ -60,11 +63,11 @@ def get_active(mf:pyscf.scf.RHF, size=None, maxM=250, verbose=False, nroots=1, s
 
     
     space_filters: list[FilterFunction] = []
-    if target_norb is not None:
-        def truncate_max_norb(space: MOListInfo) -> bool:
-            return len(space.mo_list) <= max_size
+    # if target_norb is not None:
+    def truncate_max_norb(space: MOListInfo) -> bool:
+        return len(space.mo_list) <= max_size
 
-        space_filters.append(truncate_max_norb)
+    space_filters.append(truncate_max_norb)
 
 
     print(f"-> Selected initial orbital window of {space_mp2.nel:d} electrons in ")
@@ -103,5 +106,9 @@ def get_active(mf:pyscf.scf.RHF, size=None, maxM=250, verbose=False, nroots=1, s
         )
     
     print(f"-> Selected an active space of {space.nel:d} electrons in {space.norb:d} orbitals.",)
+    print(space.mo_list)
 
+    cas, orb, occ, nev = pyscfTools.CASCI(mf, space.nel, space.norb, space.mo_coeff, space.mo_list)
+
+    print(cas.e_tot)
     return space
